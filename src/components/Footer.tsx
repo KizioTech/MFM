@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Mail, Phone, Instagram } from "lucide-react";
 
 const Footer = () => {
+   const currentYear = new Date().getFullYear();
   return (
     <footer className="bg-deep-brown text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -69,7 +70,7 @@ const Footer = () => {
         <div className="altitude-divider mt-12 mb-6" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-sans text-primary-foreground/50">
-          <p>© 2025 Mountain Fashion Magazine. All rights reserved.</p>
+          <p>© {currentYear} Mountain Fashion Magazine. All rights reserved.</p>
           <p>Lilongwe, Malawi — Celebrating African Fashion Culture</p>
         </div>
       </div>

@@ -42,7 +42,8 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <>
+      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-3">
@@ -162,19 +163,34 @@ const Navbar = () => {
           </div>
 
           <button
-            className="md:hidden text-foreground"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            className="md:hidden text-foreground p-2 -mr-2"
+            onClick={() => setIsOpen(true)}
+            aria-label="Open menu"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <Menu className="w-6 h-6" />
           </button>
         </div>
       </div>
+      </nav>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="fixed inset-0 top-16 z-40 bg-background md:hidden animate-fade-up">
-          <div className="flex flex-col items-center justify-center h-full gap-6 px-6">
+        <div className="fixed inset-0 z-[100] bg-background flex flex-col md:hidden animate-fade-up">
+          <div className="flex items-center justify-between h-16 px-4">
+            <Link to="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
+              <img src="/logo.png" alt="Logo" className="h-8 w-auto object-contain" />
+              <span className="text-editorial-heading text-lg font-bold text-foreground">MOUNTAIN</span>
+            </Link>
+            <button
+              className="text-foreground p-2"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close menu"
+            >
+              <X className="w-7 h-7" />
+            </button>
+          </div>
+          
+          <div className="flex flex-col items-center justify-start flex-1 gap-8 px-6 pt-12 pb-20 overflow-y-auto">
             <Link
               to="/"
               className={`text-editorial-heading text-2xl font-medium transition-colors hover:text-primary ${
@@ -251,7 +267,7 @@ const Navbar = () => {
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 };
 

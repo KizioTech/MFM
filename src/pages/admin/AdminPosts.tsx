@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { articles as mockArticles } from "@/data/articles";
+
 
 interface ArticleRow {
   id: string;
@@ -49,16 +51,72 @@ const AdminPosts = () => {
     fetchArticles();
   };
 
+  const handleSeedMockData = async () => {
+    if (!confirm("This will upload all mock article images to your new bucket and insert them to the database. Proceed?")) return;
+    setLoading(true);
+    const toastId = toast.loading("Migrating mock data...");
+    
+    try {
+      let count = 0;
+      for (const article of mockArticles) {
+        // Fetch the local image as a Blob
+        const res = await fetch(article.coverImage);
+        const blob = await res.blob();
+        
+        const fileExt = article.coverImage.split('.').pop()?.split('?')[0] || 'jpg';
+        const fileName = `seed-${article.slug}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        
+        // Upload to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from("post_images")
+          .upload(fileName, blob);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicData } = supabase.storage
+          .from("post_images")
+          .getPublicUrl(fileName);
+
+        // Insert into database
+        const { error: dbError } = await supabase.from("articles").upsert({
+          title: article.title,
+          slug: article.slug,
+          excerpt: article.excerpt,
+          cover_image: publicData.publicUrl,
+          altitude: article.altitude,
+          author: article.author,
+          designer: article.designer || null,
+          fabric_tags: article.fabricTags,
+          published: true, 
+          body: article.body || article.excerpt
+        }, { onConflict: 'slug' });
+
+        if (dbError) throw dbError;
+        count++;
+      }
+      toast.success(`Successfully migrated ${count} mock articles to database!`, { id: toastId });
+      fetchArticles();
+    } catch (error: any) {
+      toast.error(`Migration failed: ${error.message}`, { id: toastId });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-editorial-heading text-2xl font-bold text-foreground">Posts</h2>
-        <Button asChild>
-          <Link to="/admin/posts/new">
-            <Plus className="w-4 h-4 mr-2" />
-            New Post
-          </Link>
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleSeedMockData}>
+            Seed Mock Data
+          </Button>
+          <Button asChild>
+            <Link to="/admin/posts/new">
+              <Plus className="w-4 h-4 mr-2" />
+              New Post
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {loading ? (

@@ -187,13 +187,46 @@ const AdminPostEditor = () => {
         </div>
 
         <div>
-          <Label htmlFor="cover" className="font-sans text-sm">Cover Image URL</Label>
-          <Input
-            id="cover"
-            value={form.cover_image}
-            onChange={(e) => setForm((f) => ({ ...f, cover_image: e.target.value }))}
-            placeholder="https://..."
-          />
+          <Label htmlFor="cover" className="font-sans text-sm">Cover Image</Label>
+          <div className="flex gap-2 mt-1">
+            <Input
+              id="cover"
+              value={form.cover_image}
+              onChange={(e) => setForm((f) => ({ ...f, cover_image: e.target.value }))}
+              placeholder="https://... or upload file"
+              className="flex-1"
+            />
+            <Input
+              type="file"
+              accept="image/*"
+              className="w-[250px] cursor-pointer"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                
+                const toastId = toast.loading("Uploading image...");
+                try {
+                  const fileExt = file.name.split('.').pop();
+                  const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+                  
+                  const { error: uploadError } = await supabase.storage
+                    .from('post_images')
+                    .upload(fileName, file);
+
+                  if (uploadError) throw uploadError;
+
+                  const { data } = supabase.storage
+                    .from('post_images')
+                    .getPublicUrl(fileName);
+
+                  setForm((f) => ({ ...f, cover_image: data.publicUrl }));
+                  toast.success("Image uploaded successfully", { id: toastId });
+                } catch (error: any) {
+                  toast.error(`Upload failed: ${error.message}`, { id: toastId });
+                }
+              }}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
