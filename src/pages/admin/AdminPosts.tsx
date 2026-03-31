@@ -4,6 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { articles as mockArticles } from "@/data/articles";
 
 
@@ -44,7 +55,7 @@ const AdminPosts = () => {
   };
 
   const deleteArticle = async (id: string) => {
-    if (!confirm("Delete this article?")) return;
+    setLoading(true);
     const { error } = await supabase.from("articles").delete().eq("id", id);
     if (error) { toast.error("Failed to delete"); return; }
     toast.success("Article deleted");
@@ -52,7 +63,7 @@ const AdminPosts = () => {
   };
 
   const handleSeedMockData = async () => {
-    if (!confirm("This will upload all mock article images to your new bucket and insert them to the database. Proceed?")) return;
+    setLoading(true);
     setLoading(true);
     const toastId = toast.loading("Migrating mock data...");
     
@@ -107,9 +118,25 @@ const AdminPosts = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-editorial-heading text-2xl font-bold text-foreground">Posts</h2>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleSeedMockData}>
-            Seed Mock Data
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">
+                Seed Mock Data
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Seed Mock Data?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will upload all mock article images to your new bucket and insert them to the database. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSeedMockData}>Seed Data</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button asChild>
             <Link to="/admin/posts/new">
               <Plus className="w-4 h-4 mr-2" />
@@ -184,9 +211,31 @@ const AdminPosts = () => {
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteArticle(article.id)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the article
+                              "<strong>{article.title}</strong>" and remove it from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => deleteArticle(article.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </td>
                 </tr>

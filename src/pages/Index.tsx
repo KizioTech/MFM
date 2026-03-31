@@ -11,8 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 const categories: AltitudeCategory[] = ["peak", "plateau", "foothills", "heritage"];
 
 const Index = () => {
-  const [heroArticle, setHeroArticle] = useState<Article | null>(null);
+  const [heroArticles, setHeroArticles] = useState<Article[]>([]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [trending, setTrending] = useState<Article[]>([]);
+
+  useEffect(() => {
+    if (heroArticles.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % heroArticles.length);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [heroArticles.length]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -21,7 +30,7 @@ const Index = () => {
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: false })
-        .limit(7); // Fetch 7 to use 1 for hero and 6 for trending
+        .limit(11); // Fetch 11 to use 5 for hero and 6 for trending
       
       if (data && data.length > 0) {
         const formattedArticles: Article[] = data.map((a) => ({
@@ -40,8 +49,8 @@ const Index = () => {
           publishedAt: a.created_at,
           body: a.body,
         }));
-        setHeroArticle(formattedArticles[0]);
-        setTrending(formattedArticles.slice(1, 7));
+        setHeroArticles(formattedArticles.slice(0, 5));
+        setTrending(formattedArticles.slice(5, 11));
       }
     };
     fetchArticles();
@@ -52,11 +61,20 @@ const Index = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[60vh] md:h-[75vh]">
-        {heroArticle ? (
-          <ArticleCard article={heroArticle} featured />
+      <section className="relative h-[60vh] md:h-[75vh] overflow-hidden">
+        {heroArticles.length > 0 ? (
+          heroArticles.map((article, index) => (
+            <div
+              key={article.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentHeroIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+              }`}
+            >
+              <ArticleCard article={article} featured />
+            </div>
+          ))
         ) : (
-          <div className="w-full h-full bg-muted animate-pulse" />
+          <div className="absolute inset-0 bg-muted animate-pulse" />
         )}
       </section>
 
