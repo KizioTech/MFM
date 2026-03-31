@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleSkeleton from "@/components/ArticleSkeleton";
 import Footer from "@/components/Footer";
 import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ const ArchivePage = () => {
   const altitude = category as AltitudeCategory;
   const validCategories: AltitudeCategory[] = ["peak", "plateau", "foothills", "heritage"];
   const [dbArticles, setDbArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!validCategories.includes(altitude)) return;
@@ -42,6 +44,7 @@ const ArchivePage = () => {
           }))
         );
       }
+      setIsLoading(false);
     };
     fetchDbArticles();
   }, [altitude]);
@@ -59,7 +62,7 @@ const ArchivePage = () => {
     );
   }
 
-  const isLoading = dbArticles.length === 0;
+  // Component logic starts here
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,7 +81,11 @@ const ArchivePage = () => {
       </header>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        {dbArticles.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {[...Array(6)].map((_, i) => <ArticleSkeleton key={i} />)}
+          </div>
+        ) : dbArticles.length === 0 ? (
           <div className="text-center py-20">
             <h2 className="text-editorial-heading text-2xl text-foreground mb-2">Coming Soon</h2>
             <p className="font-sans text-sm text-muted-foreground">

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import LazyImage from "@/components/LazyImage";
 import type { Article } from "@/data/articles";
 import { altitudeLabels } from "@/data/articles";
 
@@ -78,13 +79,11 @@ const ArticleCard = ({ article, featured = false }: ArticleCardProps) => {
   if (featured) {
     return (
       <Link to={`/article/${article.slug}`} className="group block">
-        <div className="relative overflow-hidden rounded-sm">
-          <img
+        <div className="relative overflow-hidden rounded-sm h-[60vh] md:h-[75vh]">
+          <LazyImage
             src={article.coverImage}
             alt={article.title}
-            className="w-full h-[60vh] md:h-[75vh] object-cover transition-transform duration-700 group-hover:scale-105"
-            width={1920}
-            height={1080}
+            className="transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-deep-brown/90 via-deep-brown/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
@@ -121,13 +120,11 @@ const ArticleCard = ({ article, featured = false }: ArticleCardProps) => {
   return (
     <Link to={`/article/${article.slug}`} className="group block">
       <div className="relative overflow-hidden rounded-sm aspect-[4/5]">
-        <img
+        <LazyImage
           src={article.coverImage}
           alt={article.title}
-          loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          width={800}
-          height={1000}
+          aspectRatio="portrait"
+          className="transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-deep-brown/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <button

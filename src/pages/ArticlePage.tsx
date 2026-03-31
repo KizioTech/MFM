@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Heart, Bookmark, Star, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ArticleSkeleton from "@/components/ArticleSkeleton";
+import LazyImage from "@/components/LazyImage";
 import { altitudeLabels, type Article, type AltitudeCategory } from "@/data/articles";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,8 +97,17 @@ const ArticlePage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+        <ArticleSkeleton featured />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-8">
+          <div className="flex gap-4 border-b border-border pb-6">
+            <div className="h-10 w-24 bg-muted animate-pulse rounded-sm" />
+            <div className="h-10 w-24 bg-muted animate-pulse rounded-sm" />
+          </div>
+          <div className="space-y-4">
+            <div className="h-4 w-full bg-muted animate-pulse rounded-sm" />
+            <div className="h-4 w-full bg-muted animate-pulse rounded-sm" />
+            <div className="h-4 w-3/4 bg-muted animate-pulse rounded-sm" />
+          </div>
         </div>
         <Footer />
       </div>
@@ -172,16 +183,14 @@ const ArticlePage = () => {
       <Navbar />
 
       {/* Hero */}
-      <div className="relative">
-        <img
+      <div className="relative h-[50vh] md:h-[70vh]">
+        <LazyImage
           src={article.coverImage}
           alt={article.title}
-          className="w-full h-[50vh] md:h-[70vh] object-cover"
-          width={1920}
-          height={1080}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-deep-brown/80 via-deep-brown/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-brown/80 via-deep-brown/20 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 pointer-events-none">
           <div className="max-w-3xl">
             <span className="inline-block px-3 py-1 text-xs font-sans font-medium tracking-widest uppercase text-primary-foreground bg-primary/90 mb-4">
               {altitudeLabels[article.altitude]}

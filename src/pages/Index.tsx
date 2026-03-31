@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleSkeleton from "@/components/ArticleSkeleton";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
 import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
@@ -14,6 +15,7 @@ const Index = () => {
   const [heroArticles, setHeroArticles] = useState<Article[]>([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [trending, setTrending] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (heroArticles.length === 0) return;
@@ -52,6 +54,7 @@ const Index = () => {
         setHeroArticles(formattedArticles.slice(0, 5));
         setTrending(formattedArticles.slice(5, 11));
       }
+      setIsLoading(false);
     };
     fetchArticles();
   }, []);
@@ -61,8 +64,10 @@ const Index = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[60vh] md:h-[75vh] overflow-hidden">
-        {heroArticles.length > 0 ? (
+      <section className="relative h-[60vh] md:h-[75vh] overflow-hidden bg-muted">
+        {isLoading ? (
+          <ArticleSkeleton featured />
+        ) : heroArticles.length > 0 ? (
           heroArticles.map((article, index) => (
             <div
               key={article.id}
@@ -74,7 +79,9 @@ const Index = () => {
             </div>
           ))
         ) : (
-          <div className="absolute inset-0 bg-muted animate-pulse" />
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground font-sans">
+            No featured stories today.
+          </div>
         )}
       </section>
 
@@ -124,11 +131,19 @@ const Index = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {trending.map((article, i) => (
-            <div key={article.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
-              <ArticleCard article={article} />
+          {isLoading ? (
+            [...Array(6)].map((_, i) => <ArticleSkeleton key={i} />)
+          ) : trending.length > 0 ? (
+            trending.map((article, i) => (
+              <div key={article.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                <ArticleCard article={article} />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground font-sans">
+              More coming soon.
             </div>
-          ))}
+          )}
         </div>
       </section>
 
