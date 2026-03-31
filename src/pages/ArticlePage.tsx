@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Heart, Bookmark, Star, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getArticleBySlug, altitudeLabels, type Article, type AltitudeCategory } from "@/data/articles";
+import { altitudeLabels, type Article, type AltitudeCategory } from "@/data/articles";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,8 +12,8 @@ const ArticlePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [article, setArticle] = useState<Article | undefined>(getArticleBySlug(slug || ""));
-  const [loading, setLoading] = useState(!article);
+  const [article, setArticle] = useState<Article | undefined>();
+  const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -24,7 +24,7 @@ const ArticlePage = () => {
 
   // Fetch from DB if not a static article
   useEffect(() => {
-    if (article || !slug) { setLoading(false); return; }
+    if (!slug) { setLoading(false); return; }
     const fetchFromDb = async () => {
       const { data } = await supabase
         .from("articles")

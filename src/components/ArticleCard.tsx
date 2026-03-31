@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { Article } from "@/data/articles";
 import { altitudeLabels } from "@/data/articles";
 
@@ -10,14 +12,67 @@ interface ArticleCardProps {
 }
 
 const ArticleCard = ({ article, featured = false }: ArticleCardProps) => {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(article.totalLikes);
+  const [likeCount, setLikeCount] = useState(0);
 
-  const handleLike = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const fetchLikes = async () => {
+      // Get total like count for this article
+      const { count } = await supabase
+        .from("article_likes")
+        .select("*", { count: "exact", head: true })
+        .eq("article_slug", article.slug);
+      
+      if (count !== null) setLikeCount(count);
+
+      // Check if current user liked it
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from("article_likes")
+          .select("id")
+          .eq("article_slug", article.slug)
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        
+        if (data) setLiked(true);
+      }
+    };
+    fetchLikes();
+  }, [article.slug]);
+
+  const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.info("Please login to like articles");
+      navigate("/auth");
+      return;
+    }
+
+    // Optimistic update
     setLiked(!liked);
     setLikeCount((c) => (liked ? c - 1 : c + 1));
+
+    if (liked) {
+      // Unlike
+      await supabase
+        .from("article_likes")
+        .delete()
+        .eq("article_slug", article.slug)
+        .eq("user_id", session.user.id);
+    } else {
+      // Like
+      await supabase
+        .from("article_likes")
+        .insert({
+          article_slug: article.slug,
+          user_id: session.user.id,
+        });
+    }
   };
 
   if (featured) {

@@ -1,24 +1,63 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ArticleCard from "@/components/ArticleCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
-import { articles, getTrendingArticles, altitudeLabels, altitudeDescriptions, type AltitudeCategory } from "@/data/articles";
+import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
 import { ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories: AltitudeCategory[] = ["peak", "plateau", "foothills", "heritage"];
 
 const Index = () => {
-  const heroArticle = articles[0];
-  const trending = getTrendingArticles();
+  const [heroArticle, setHeroArticle] = useState<Article | null>(null);
+  const [trending, setTrending] = useState<Article[]>([]);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const { data } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(7); // Fetch 7 to use 1 for hero and 6 for trending
+      
+      if (data && data.length > 0) {
+        const formattedArticles: Article[] = data.map((a) => ({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          excerpt: a.excerpt,
+          coverImage: a.cover_image,
+          altitude: a.altitude as AltitudeCategory,
+          author: a.author,
+          designer: a.designer ?? undefined,
+          fabricTags: a.fabric_tags ?? [],
+          totalLikes: 0,
+          avgRating: 0,
+          reviewCount: 0,
+          publishedAt: a.created_at,
+          body: a.body,
+        }));
+        setHeroArticle(formattedArticles[0]);
+        setTrending(formattedArticles.slice(1, 7));
+      }
+    };
+    fetchArticles();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
-      <section className="relative">
-        <ArticleCard article={heroArticle} featured />
+      <section className="relative h-[60vh] md:h-[75vh]">
+        {heroArticle ? (
+          <ArticleCard article={heroArticle} featured />
+        ) : (
+          <div className="w-full h-full bg-muted animate-pulse" />
+        )}
       </section>
 
       {/* Altitude Categories */}

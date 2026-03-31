@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ArticleCard from "@/components/ArticleCard";
 import Footer from "@/components/Footer";
-import { getArticlesByAltitude, altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
+import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
 import { supabase } from "@/integrations/supabase/client";
 
 const ArchivePage = () => {
@@ -59,14 +59,7 @@ const ArchivePage = () => {
     );
   }
 
-  const staticArticles = getArticlesByAltitude(altitude);
-  // Merge DB articles first (newest), then static ones, dedup by slug
-  const seenSlugs = new Set<string>();
-  const allArticles = [...dbArticles, ...staticArticles].filter((a) => {
-    if (seenSlugs.has(a.slug)) return false;
-    seenSlugs.add(a.slug);
-    return true;
-  });
+  const isLoading = dbArticles.length === 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,7 +78,7 @@ const ArchivePage = () => {
       </header>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        {allArticles.length === 0 ? (
+        {dbArticles.length === 0 ? (
           <div className="text-center py-20">
             <h2 className="text-editorial-heading text-2xl text-foreground mb-2">Coming Soon</h2>
             <p className="font-sans text-sm text-muted-foreground">
@@ -94,7 +87,7 @@ const ArchivePage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {allArticles.map((article, i) => (
+            {dbArticles.map((article, i) => (
               <div key={article.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
                 <ArticleCard article={article} />
               </div>

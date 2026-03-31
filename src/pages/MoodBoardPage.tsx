@@ -5,21 +5,52 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getArticleBySlug } from "@/data/articles";
+import { type Article, type AltitudeCategory } from "@/data/articles";
 
 const MoodBoardPage = () => {
   const { user } = useAuth();
-  const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
+  const [savedArticles, setSavedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const fetchSaved = async () => {
-      const { data } = await supabase
+      const { data: moodData } = await supabase
         .from("mood_board")
         .select("article_slug")
         .eq("user_id", user.id);
-      setSavedSlugs(data?.map((d) => d.article_slug) || []);
+      
+      const slugs = moodData?.map((d) => d.article_slug) || [];
+      if (slugs.length > 0) {
+        const { data: articlesData } = await supabase
+          .from("articles")
+          .select("*")
+          .in("slug", slugs);
+        
+        if (articlesData) {
+          setSavedArticles(
+            articlesData.map((a) => ({
+              id: a.id,
+              title: a.title,
+              slug: a.slug,
+              excerpt: a.excerpt,
+              coverImage: a.cover_image,
+              altitude: a.altitude as AltitudeCategory,
+              author: a.author,
+              designer: a.designer ?? undefined,
+              fabricTags: a.fabric_tags ?? [],
+              totalLikes: 0,
+              avgRating: 0,
+              reviewCount: 0,
+              publishedAt: a.created_at,
+              body: a.body,
+            }))
+          );
+        }
+      }
       setLoading(false);
     };
     fetchSaved();
@@ -32,12 +63,8 @@ const MoodBoardPage = () => {
       .delete()
       .eq("user_id", user.id)
       .eq("article_slug", slug);
-    setSavedSlugs((prev) => prev.filter((s) => s !== slug));
+    setSavedArticles((prev) => prev.filter((a) => a.slug !== slug));
   };
-
-  const articles = savedSlugs
-    .map((slug) => getArticleBySlug(slug))
-    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +83,7 @@ const MoodBoardPage = () => {
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
         {loading ? (
           <p className="text-center text-muted-foreground font-sans text-sm">Loading...</p>
-        ) : articles.length === 0 ? (
+        ) : savedArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-sans mb-4">
               You haven't saved any looks yet.
@@ -70,7 +97,7 @@ const MoodBoardPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) =>
+            {savedArticles.map((article) =>
               article ? (
                 <div key={article.slug} className="group relative border border-border rounded-sm overflow-hidden">
                   <Link to={`/article/${article.slug}`}>
