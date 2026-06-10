@@ -1,35 +1,42 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import ArticleCard from "@/components/ArticleCard";
-import ArticleSkeleton from "@/components/ArticleSkeleton";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import { HeroSection } from "@/components/blocks/hero-section-5";
 import Footer from "@/components/Footer";
-import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
-import { ArrowRight, Sparkles, Users, Briefcase, CalendarDays, MessageSquare } from "lucide-react";
+import {
+  altitudeLabels,
+  altitudeDescriptions,
+  type AltitudeCategory,
+  type Article,
+} from "@/data/articles";
+import {
+  ArrowRight,
+  Sparkles,
+  Users,
+  Briefcase,
+  CalendarDays,
+  MessageSquare,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import useSEO from "@/hooks/useSEO";
 
-const categories: AltitudeCategory[] = ["peak", "plateau", "foothills", "heritage"];
+const categories: AltitudeCategory[] = [
+  "peak",
+  "plateau",
+  "foothills",
+  "heritage",
+];
 
 const Index = () => {
-  const [heroArticles, setHeroArticles] = useState<Article[]>([]);
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [trending, setTrending] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useSEO({
     title: "Mountain Fashion Magazine — Malawian Heritage Meets Modern Fashion",
-    description: "A social editorial platform celebrating Malawian fashion culture.",
+    description:
+      "A social editorial platform celebrating Malawian fashion culture.",
   });
-
-  useEffect(() => {
-    if (heroArticles.length === 0) return;
-    const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => (prev + 1) % heroArticles.length);
-    }, 7000);
-    return () => clearInterval(interval);
-  }, [heroArticles.length]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -39,7 +46,7 @@ const Index = () => {
         .eq("published", true)
         .order("created_at", { ascending: false })
         .limit(11); // Fetch 11 to use 5 for hero and 6 for trending
-      
+
       if (data && data.length > 0) {
         const formattedArticles: Article[] = data.map((a) => ({
           id: a.id,
@@ -57,8 +64,7 @@ const Index = () => {
           publishedAt: a.created_at,
           body: a.body,
         }));
-        setHeroArticles(formattedArticles.slice(0, 5));
-        setTrending(formattedArticles.slice(5, 11));
+        setTrending(formattedArticles.slice(0, 6));
       }
       setIsLoading(false);
     };
@@ -69,27 +75,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative h-[60vh] md:h-[75vh] overflow-hidden bg-muted">
-        {isLoading ? (
-          <ArticleSkeleton featured />
-        ) : heroArticles.length > 0 ? (
-          heroArticles.map((article, index) => (
-            <div
-              key={article.id}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentHeroIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-              }`}
-            >
-              <ArticleCard article={article} featured />
-            </div>
-          ))
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground font-sans">
-            No featured stories today.
-          </div>
-        )}
-      </section>
+      <HeroSection trending={trending} isLoading={isLoading} />
 
       {/* Altitude Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -133,103 +119,100 @@ const Index = () => {
               Discover The Ecosystem
             </h2>
             <p className="font-sans text-sm text-muted-foreground max-w-xl mx-auto">
-              Connecting Malawian fashion creatives, professionals, and enthusiasts across the country.
+              Connecting Malawian fashion creatives, professionals, and
+              enthusiasts across the country.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link to="/designers" className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]">
+            <Link
+              to="/designers"
+              className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
+            >
               <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
                 <Users className="w-64 h-64" />
               </div>
               <div>
-                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">Designer & Model Directory</h3>
+                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">
+                  Designer & Model Directory
+                </h3>
                 <p className="font-sans text-sm text-muted-foreground max-w-md leading-relaxed">
-                  Browse profiles of Malawian designers, ateliers, and modelling talent available for bookings and collaborations. Find the perfect fit for your next project.
+                  Browse profiles of Malawian designers, ateliers, and modelling
+                  talent available for bookings and collaborations. Find the
+                  perfect fit for your next project.
                 </p>
               </div>
               <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Explore Directory <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Explore Directory{" "}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            <Link to="/consultancy" className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]">
+            <Link
+              to="/consultancy"
+              className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
+            >
               <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
                 <Briefcase className="w-40 h-40" />
               </div>
               <div>
-                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">Consultancy</h3>
+                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">
+                  Consultancy
+                </h3>
                 <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                   Book stylists, photographers, and consultants seamlessly.
                 </p>
               </div>
               <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Find Talent <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Find Talent{" "}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            <Link to="/events" className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]">
+            <Link
+              to="/events"
+              className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
+            >
               <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
                 <CalendarDays className="w-40 h-40" />
               </div>
               <div>
-                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">Events</h3>
+                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">
+                  Events
+                </h3>
                 <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                   Trunk shows, pop-ups, and runways across Malawi.
                 </p>
               </div>
               <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                View Calendar <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                View Calendar{" "}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            <Link to="/community" className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]">
+            <Link
+              to="/community"
+              className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
+            >
               <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
                 <MessageSquare className="w-64 h-64" />
               </div>
               <div>
-                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">Community Lookbook</h3>
+                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">
+                  Community Lookbook
+                </h3>
                 <p className="font-sans text-sm text-muted-foreground max-w-md leading-relaxed">
-                  Real looks from the Malawian fashion community. Submit your daily styles, get inspired by others, and celebrate our shared heritage.
+                  Real looks from the Malawian fashion community. Submit your
+                  daily styles, get inspired by others, and celebrate our shared
+                  heritage.
                 </p>
               </div>
               <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Join the Community <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Join the Community{" "}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Trending Ascent */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <span className="font-sans text-xs font-medium tracking-widest uppercase text-primary">
-              Trending Ascent
-            </span>
-            <h2 className="text-editorial-heading text-2xl md:text-3xl text-foreground mt-1">
-              This Week's Most Loved
-            </h2>
-          </div>
-          <Link to="/archives/peak" className="hidden md:flex items-center gap-1 font-sans text-sm text-muted-foreground hover:text-primary transition-colors">
-            View all <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {isLoading ? (
-            [...Array(6)].map((_, i) => <ArticleSkeleton key={i} />)
-          ) : trending.length > 0 ? (
-            trending.map((article, i) => (
-              <div key={article.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                <ArticleCard article={article} />
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-muted-foreground font-sans">
-              More coming soon.
-            </div>
-          )}
         </div>
       </section>
 
