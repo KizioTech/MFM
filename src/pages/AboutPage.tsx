@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
@@ -288,6 +289,43 @@ const AboutPage = () => {
                 </h3>
                 <p className="text-sm text-muted-foreground">{desc}</p>
               </div>
+            ))}
+          </div>
+
+          <h2 className="text-editorial-heading text-2xl text-foreground mt-10 mb-4">
+            More Than a Magazine
+          </h2>
+          <p>
+            MFM has grown from a digital magazine into a full-service fashion
+            platform. Beyond editorial stories, we now connect the Malawian
+            fashion ecosystem through a suite of Discover features — each
+            designed to spotlight talent and foster collaboration.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 my-10">
+            {[
+              {
+                title: "Designer & Model Directory",
+                desc: "Browse profiles of Malawian designers, ateliers, and modelling talent available for bookings and collaborations.",
+                href: "/designers",
+              },
+              {
+                title: "Consultancy Marketplace",
+                desc: "Find and book stylists, photographers, and fashion consultants for your next project — all in one place.",
+                href: "/consultancy",
+              },
+              {
+                title: "Events & Community",
+                desc: "Stay up-to-date with fashion shows, trunk sales, and pop-up markets. Share your own looks in our community feed.",
+                href: "/events",
+              },
+            ].map(({ title, desc, href }) => (
+              <Link key={title} to={href} className="p-6 border border-border rounded-sm hover:border-primary hover:bg-primary/5 transition-all group">
+                <h3 className="text-editorial-heading text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground">{desc}</p>
+              </Link>
             ))}
           </div>
 

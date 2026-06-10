@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-deep-brown text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-10">
           <div className="sm:col-span-2 md:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <img src="/logo.png" alt="Mountain Fashion Magazine" className="h-10 md:h-12 w-auto object-contain" />
@@ -31,6 +31,17 @@ const Footer = () => {
               <li><Link to="/archives/plateau" className="text-primary-foreground/70 hover:text-primary transition-colors">The Plateau</Link></li>
               <li><Link to="/archives/foothills" className="text-primary-foreground/70 hover:text-primary transition-colors">The Foothills</Link></li>
               <li><Link to="/archives/heritage" className="text-primary-foreground/70 hover:text-primary transition-colors">Heritage Lab</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-sans text-xs font-semibold tracking-widest uppercase text-primary-foreground/60 mb-4">Discover</h4>
+            <ul className="space-y-2 font-sans text-sm">
+              <li><Link to="/designers" className="text-primary-foreground/70 hover:text-primary transition-colors">Designers</Link></li>
+              <li><Link to="/models" className="text-primary-foreground/70 hover:text-primary transition-colors">Models</Link></li>
+              <li><Link to="/consultancy" className="text-primary-foreground/70 hover:text-primary transition-colors">Consultancy</Link></li>
+              <li><Link to="/events" className="text-primary-foreground/70 hover:text-primary transition-colors">Events</Link></li>
+              <li><Link to="/community" className="text-primary-foreground/70 hover:text-primary transition-colors">Community</Link></li>
             </ul>
           </div>
 

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Search, ChevronDown, User, LogOut, Bookmark, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import SearchModal from "@/components/SearchModal";
 
 const archiveLinks = [
   { label: "The Peak", href: "/archives/peak", desc: "Couture & Gala" },
@@ -10,13 +11,25 @@ const archiveLinks = [
   { label: "Heritage Lab", href: "/archives/heritage", desc: "Textile History" },
 ];
 
+const discoverLinks = [
+  { label: "Designers",   href: "/designers",   desc: "Malawian brands & ateliers" },
+  { label: "Models",      href: "/models",       desc: "Talent directory" },
+  { label: "Consultancy", href: "/consultancy",  desc: "Stylists & photographers" },
+  { label: "Events",      href: "/events",       desc: "Shows, pop-ups & markets" },
+  { label: "Community",   href: "/community",    desc: "Style submissions" },
+];
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [archivesOpen, setArchivesOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
   const [mobileArchivesOpen, setMobileArchivesOpen] = useState(false);
+  const [mobileDiscoverOpen, setMobileDiscoverOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const discoverRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
 
@@ -26,6 +39,9 @@ const Navbar = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setArchivesOpen(false);
+      }
+      if (discoverRef.current && !discoverRef.current.contains(e.target as Node)) {
+        setDiscoverOpen(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
@@ -38,6 +54,7 @@ const Navbar = () => {
   useEffect(() => {
     setIsOpen(false);
     setMobileArchivesOpen(false);
+    setMobileDiscoverOpen(false);
     setUserMenuOpen(false);
   }, [location.pathname]);
 
@@ -99,6 +116,39 @@ const Navbar = () => {
               )}
             </div>
 
+            {/* Discover Dropdown */}
+            <div className="relative" ref={discoverRef}>
+              <button
+                onClick={() => setDiscoverOpen(!discoverOpen)}
+                className={`flex items-center gap-1 text-sm font-medium tracking-wide transition-colors hover:text-primary ${
+                  ["/designers","/models","/consultancy","/events","/community"]
+                    .some(p => location.pathname.startsWith(p))
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Discover
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${discoverOpen ? "rotate-180" : ""}`} />
+              </button>
+              {discoverOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-background border border-border rounded-md shadow-lg py-2 animate-fade-up">
+                  {discoverLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      onClick={() => setDiscoverOpen(false)}
+                      className={`block px-4 py-2.5 hover:bg-accent transition-colors ${
+                        location.pathname.startsWith(link.href) ? "text-primary" : "text-foreground"
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{link.label}</span>
+                      <span className="block text-xs text-muted-foreground">{link.desc}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link
               to="/about"
               className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
@@ -108,9 +158,14 @@ const Navbar = () => {
               About
             </Link>
 
-            <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Search">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Search"
+            >
               <Search className="w-4 h-4" />
             </button>
+            <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
             {/* Auth / User Menu */}
             {user ? (
@@ -220,6 +275,30 @@ const Navbar = () => {
                       className={`text-lg font-sans transition-colors hover:text-primary ${
                         location.pathname === link.href ? "text-primary" : "text-muted-foreground"
                       }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Discover Accordion */}
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => setMobileDiscoverOpen(!mobileDiscoverOpen)}
+                className="flex items-center gap-2 text-editorial-heading text-2xl font-medium transition-colors hover:text-primary text-foreground"
+              >
+                Discover
+                <ChevronDown className={`w-5 h-5 transition-transform ${mobileDiscoverOpen ? "rotate-180" : ""}`} />
+              </button>
+              {mobileDiscoverOpen && (
+                <div className="flex flex-col items-center gap-3 mt-4">
+                  {discoverLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="text-lg font-sans transition-colors hover:text-primary text-muted-foreground"
                     >
                       {link.label}
                     </Link>

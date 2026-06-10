@@ -8,6 +8,10 @@ import LazyImage from "@/components/LazyImage";
 import { altitudeLabels, type Article, type AltitudeCategory } from "@/data/articles";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import useSEO from "@/hooks/useSEO";
+import ShareButtons from "@/components/ShareButtons";
+import RelatedArticles from "@/components/RelatedArticles";
+import ArticleComments from "@/components/ArticleComments";
 
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +27,13 @@ const ArticlePage = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  useSEO({
+    title: article ? `${article.title} — Mountain Fashion Magazine` : "Article",
+    description: article?.excerpt,
+    image: article?.coverImage,
+    type: "article",
+  });
 
   // Fetch from DB if not a static article
   useEffect(() => {
@@ -240,6 +251,9 @@ const ArticlePage = () => {
               <span>({article.reviewCount} reviews)</span>
             </div>
           )}
+          <div className="ml-auto">
+            <ShareButtons title={article.title} />
+          </div>
         </div>
 
         {/* Fabric Tags */}
@@ -260,6 +274,8 @@ const ArticlePage = () => {
             </p>
           ))}
         </div>
+
+        <RelatedArticles currentSlug={slug!} altitude={article.altitude} />
 
         <div className="altitude-divider my-12" />
 
@@ -316,6 +332,9 @@ const ArticlePage = () => {
             )}
           </section>
         )}
+
+        <div className="altitude-divider my-12" />
+        <ArticleComments articleSlug={slug!} />
       </article>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-8">

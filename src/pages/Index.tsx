@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { altitudeLabels, altitudeDescriptions, type AltitudeCategory, type Article } from "@/data/articles";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import useSEO from "@/hooks/useSEO";
 
 const categories: AltitudeCategory[] = ["peak", "plateau", "foothills", "heritage"];
 
@@ -16,6 +17,11 @@ const Index = () => {
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [trending, setTrending] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useSEO({
+    title: "Mountain Fashion Magazine — Malawian Heritage Meets Modern Fashion",
+    description: "A social editorial platform celebrating Malawian fashion culture.",
+  });
 
   useEffect(() => {
     if (heroArticles.length === 0) return;

@@ -1,9 +1,12 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Users, Mail, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Mail, ArrowLeft, Layers, CalendarDays, MessageSquare } from "lucide-react";
 
 const navItems = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Posts", href: "/admin/posts", icon: FileText },
+  { label: "Directory", href: "/admin/directory", icon: Layers },
+  { label: "Events", href: "/admin/events", icon: CalendarDays },
+  { label: "Community", href: "/admin/community", icon: MessageSquare },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
 ];
