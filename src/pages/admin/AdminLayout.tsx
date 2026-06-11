@@ -9,7 +9,8 @@ import {
   CalendarDays, 
   MessageSquare 
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const NavGroup = ({ label, children }: { label: string, children: React.ReactNode }) => (
   <div className="mb-6">
@@ -52,8 +53,19 @@ const NavItem = ({ href, icon: Icon, label, exact = false, badge = 0 }: { href: 
 };
 
 const AdminLayout = () => {
-  // In a real app we'd get this from context, mock it for now
-  const pendingCount = 0;
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const [postsRes, commentsRes] = await Promise.all([
+        supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("approved", false),
+        supabase.from("article_comments").select("id", { count: "exact", head: true }).eq("approved", false)
+      ]);
+      const totalPending = (postsRes.count ?? 0) + (commentsRes.count ?? 0);
+      setPendingCount(totalPending);
+    };
+    fetchPendingCount();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -76,7 +88,7 @@ const AdminLayout = () => {
           <NavGroup label="Content">
             <NavItem href="/admin" icon={LayoutDashboard} label="Overview" exact />
             <NavItem href="/admin/posts" icon={FileText} label="Posts" />
-            <NavItem href="/admin/community" icon={MessageSquare} label="Moderation" badge={pendingCount} />
+            <NavItem href="/admin/community" icon={MessageSquare} label="Community Posts" badge={pendingCount} />
           </NavGroup>
           <NavGroup label="Platform">
             <NavItem href="/admin/directory" icon={Layers} label="Directory" />

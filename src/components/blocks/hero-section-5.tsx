@@ -57,7 +57,7 @@ export function HeroSection({ trending, isLoading }: HeroSectionProps) {
                                     size="lg"
                                     className="h-12 rounded-full pl-5 pr-3 text-base shadow-xl">
                                     <Link to="/archives/peak">
-                                        <span className="text-nowrap">Read Latest Issue</span>
+                                        <span className="text-nowrap">Read Latest Story</span>
                                         <ChevronRight className="ml-1" />
                                     </Link>
                                 </Button>

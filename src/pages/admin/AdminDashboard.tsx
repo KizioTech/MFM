@@ -11,6 +11,7 @@ interface Stats {
   articles: number; users: number; likes: number; subscribers: number;
   designers: number; models: number; events: number; services: number;
   pendingPosts: number; pendingComments: number;
+  communityPosts: number;
 }
 
 const StatCard = ({ label, value, trend, trendUp, icon: Icon, href }: any) => {
@@ -69,6 +70,7 @@ const AdminDashboard = () => {
     articles: 0, users: 0, likes: 0, subscribers: 0,
     designers: 0, models: 0, events: 0, services: 0,
     pendingPosts: 0, pendingComments: 0,
+    communityPosts: 0,
   });
   const [recentArticles, setRecentArticles] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState(0);
@@ -79,7 +81,7 @@ const AdminDashboard = () => {
       const [
         articlesRes, profilesRes, likesRes, subsRes, designersRes, modelsRes, 
         eventsRes, pendPostsRes, pendCommentsRes, recentArticlesRes, upcomingEventsRes,
-        servicesRes
+        servicesRes, communityPostsRes
       ] = await Promise.all([
         supabase.from("articles").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
@@ -92,7 +94,8 @@ const AdminDashboard = () => {
         supabase.from("article_comments").select("id", { count: "exact", head: true }).eq("approved", false),
         supabase.from("articles").select("id, title, slug, author, created_at").order("created_at", { ascending: false }).limit(5),
         supabase.from("events").select("id", { count: "exact", head: true }).gte("starts_at", new Date().toISOString()),
-        supabase.from("services").select("id", { count: "exact", head: true })
+        supabase.from("services").select("id", { count: "exact", head: true }),
+        supabase.from("community_posts").select("id", { count: "exact", head: true })
       ]);
       setStats({
         articles: articlesRes.count ?? 0,
@@ -105,6 +108,7 @@ const AdminDashboard = () => {
         services: servicesRes.count ?? 0,
         pendingPosts: pendPostsRes.count ?? 0,
         pendingComments: pendCommentsRes.count ?? 0,
+        communityPosts: communityPostsRes.count ?? 0,
       });
       if (recentArticlesRes.data) {
         setRecentArticles(recentArticlesRes.data);
@@ -179,9 +183,12 @@ const AdminDashboard = () => {
             href="/admin/newsletter"
           />
           <StatCard
-            label="Total Likes"
-            value={stats.likes}
-            icon={Heart}
+            label="Community Posts"
+            value={stats.communityPosts}
+            trend={`${stats.pendingPosts} pending`}
+            trendUp={false}
+            icon={MessageSquare}
+            href="/admin/community"
           />
         </div>
 

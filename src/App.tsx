@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index.tsx";
 import ArchivePage from "./pages/ArchivePage.tsx";
 import ArticlePage from "./pages/ArticlePage.tsx";
@@ -42,59 +43,61 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/archives/:category" element={<ArchivePage />} />
-              <Route path="/article/:slug" element={<ArticlePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/designers" element={<DesignersPage />} />
-              <Route path="/designers/:slug" element={<DesignerDetailPage />} />
-              <Route path="/models" element={<ModelsPage />} />
-              <Route path="/models/:slug" element={<ModelDetailPage />} />
-              <Route path="/consultancy" element={<ConsultancyPage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/events/:slug" element={<EventDetailPage />} />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route
-                path="/mood-board"
-                element={
-                  <ProtectedRoute>
-                    <MoodBoardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <AdminLayout />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="posts" element={<AdminPosts />} />
-                <Route path="posts/:id" element={<AdminPostEditor />} />
-                <Route path="directory" element={<AdminDirectory />} />
-                <Route path="events" element={<AdminEvents />} />
-                <Route path="community" element={<AdminCommunity />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="newsletter" element={<AdminNewsletter />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/archives/:category" element={<ArchivePage />} />
+                <Route path="/article/:slug" element={<ArticlePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/designers" element={<DesignersPage />} />
+                <Route path="/designers/:slug" element={<DesignerDetailPage />} />
+                <Route path="/models" element={<ModelsPage />} />
+                <Route path="/models/:slug" element={<ModelDetailPage />} />
+                <Route path="/consultancy" element={<ConsultancyPage />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/events/:slug" element={<EventDetailPage />} />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route
+                  path="/mood-board"
+                  element={
+                    <ProtectedRoute>
+                      <MoodBoardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminLayout />
+                    </AdminRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="posts" element={<AdminPosts />} />
+                  <Route path="posts/:id" element={<AdminPostEditor />} />
+                  <Route path="directory" element={<AdminDirectory />} />
+                  <Route path="events" element={<AdminEvents />} />
+                  <Route path="community" element={<AdminCommunity />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="newsletter" element={<AdminNewsletter />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

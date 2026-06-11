@@ -30,14 +30,14 @@ export function CoverHero({ latestSlug }: CoverHeroProps) {
 
       {/* Issue label + headline + CTAs — bottom left */}
       <div className="absolute bottom-14 left-8 md:left-14 z-10 max-w-xl">
-        <span className="font-sans text-xs tracking-[0.35em] uppercase text-ochre mb-4 block">
-          Current Issue
-        </span>
         <h1 className="font-serif text-5xl md:text-7xl lg:text-[82px] text-white leading-[1.0] font-bold">
           Malawian<br />
           <em className="not-italic font-serif italic">Heritage</em> Meets<br />
           Modern Fashion
         </h1>
+        <p className="mt-8 max-w-2xl text-balance text-lg text-white/90 font-sans drop-shadow-lg">
+          A premium social editorial platform celebrating Malawian fashion culture, connecting creatives, designers, and enthusiasts across the country.
+        </p>
         <div className="flex flex-wrap items-center gap-3 mt-8">
           <Link
             to={latestSlug ? `/article/${latestSlug}` : "/archives/peak"}

@@ -9,7 +9,10 @@ import {
   LogOut,
   Bookmark,
   Shield,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import SearchModal from "@/components/SearchModal";
@@ -64,6 +67,7 @@ const Navbar = () => {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminRole();
+  const { theme, setTheme } = useTheme();
 
   const isHome = location.pathname === "/";
   const isTransparent = isHome && !scrolled;
@@ -246,6 +250,15 @@ const Navbar = () => {
               >
                 About
               </Link>
+
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className={`transition-colors hover:text-primary ${isTransparent ? 'text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+                aria-label="Toggle Dark Mode"
+              >
+                <Sun className="w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 hidden dark:block" />
+                <Moon className="w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 block dark:hidden" />
+              </button>
 
               <button
                 onClick={() => setSearchOpen(true)}
@@ -433,6 +446,18 @@ const Navbar = () => {
             </Link>
 
             <div className="altitude-divider w-24 my-2" />
+
+            <button
+              onClick={() => {
+                setTheme(theme === "dark" ? "light" : "dark");
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-2 text-editorial-heading text-xl font-medium text-foreground hover:text-primary transition-colors"
+            >
+              <Sun className="w-5 h-5 hidden dark:block" />
+              <Moon className="w-5 h-5 block dark:hidden" />
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
 
             {user ? (
               <>
