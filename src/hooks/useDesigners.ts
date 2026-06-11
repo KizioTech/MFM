@@ -15,26 +15,51 @@ export interface Designer {
   verified: boolean;
 }
 
-// Module-level cache — persists across component mounts in same session
-let cache: Designer[] | null = null;
+const CACHE_KEY = "mfm_designers_cache";
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function getFromLocalStorage(): Designer[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp > CACHE_TTL_MS) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return data as Designer[];
+  } catch {
+    return null;
+  }
+}
+
+function saveToLocalStorage(data: Designer[]) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {
+    // LocalStorage may be full or unavailable — silently ignore
+  }
+}
 
 export const useDesigners = () => {
-  const [designers, setDesigners] = useState<Designer[]>(cache ?? []);
-  const [loading, setLoading] = useState(!cache);
+  const cached = getFromLocalStorage();
+  const [designers, setDesigners] = useState<Designer[]>(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
-    if (cache) return;
+    if (cached) return;
     supabase
       .from("designers")
       .select("*")
       .order("name")
       .then(({ data }) => {
         if (data) {
-          cache = data as Designer[];
-          setDesigners(cache);
+          saveToLocalStorage(data as Designer[]);
+          setDesigners(data as Designer[]);
         }
         setLoading(false);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { designers, loading };

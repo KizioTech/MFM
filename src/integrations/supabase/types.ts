@@ -12,8 +12,60 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      article_comments: {
+        Row: {
+          approved: boolean
+          article_slug: string
+          body: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          article_slug: string
+          body: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          article_slug?: string
+          body?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       article_likes: {
         Row: {
           article_slug: string
@@ -44,10 +96,12 @@ export type Database = {
           created_at: string
           created_by: string | null
           designer: string | null
+          designer_id: string | null
           excerpt: string
           fabric_tags: string[]
           id: string
           published: boolean
+          search_vector: unknown
           slug: string
           title: string
           updated_at: string
@@ -60,10 +114,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           designer?: string | null
+          designer_id?: string | null
           excerpt?: string
           fabric_tags?: string[]
           id?: string
           published?: boolean
+          search_vector?: unknown
           slug: string
           title: string
           updated_at?: string
@@ -76,13 +132,316 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           designer?: string | null
+          designer_id?: string | null
           excerpt?: string
           fabric_tags?: string[]
           id?: string
           published?: boolean
+          search_vector?: unknown
           slug?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_designer_id_fkey"
+            columns: ["designer_id"]
+            isOneToOne: false
+            referencedRelation: "designers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          approved: boolean
+          caption: string
+          created_at: string
+          designer_id: string | null
+          fabric_tags: string[]
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          caption?: string
+          created_at?: string
+          designer_id?: string | null
+          fabric_tags?: string[]
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          caption?: string
+          created_at?: string
+          designer_id?: string | null
+          fabric_tags?: string[]
+          id?: string
+          image_url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_designer_id_fkey"
+            columns: ["designer_id"]
+            isOneToOne: false
+            referencedRelation: "designers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      designers: {
+        Row: {
+          avatar_url: string
+          bio: string
+          categories: string[]
+          cover_image: string
+          created_at: string
+          created_by: string | null
+          id: string
+          location: string
+          name: string
+          slug: string
+          social_ig: string | null
+          social_web: string | null
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          avatar_url?: string
+          bio?: string
+          categories?: string[]
+          cover_image?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string
+          name: string
+          slug: string
+          social_ig?: string | null
+          social_web?: string | null
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          avatar_url?: string
+          bio?: string
+          categories?: string[]
+          cover_image?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string
+          name?: string
+          slug?: string
+          social_ig?: string | null
+          social_web?: string | null
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          cover_image: string
+          created_at: string
+          created_by: string | null
+          description: string
+          ends_at: string | null
+          free: boolean
+          id: string
+          location: string
+          published: boolean
+          slug: string
+          starts_at: string
+          ticket_url: string | null
+          title: string
+        }
+        Insert: {
+          cover_image?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string | null
+          free?: boolean
+          id?: string
+          location?: string
+          published?: boolean
+          slug: string
+          starts_at: string
+          ticket_url?: string | null
+          title: string
+        }
+        Update: {
+          cover_image?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string | null
+          free?: boolean
+          id?: string
+          location?: string
+          published?: boolean
+          slug?: string
+          starts_at?: string
+          ticket_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      model_booking_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          model_id: string
+          name: string
+          project_type: string
+          requester_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          model_id: string
+          name: string
+          project_type?: string
+          requester_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          model_id?: string
+          name?: string
+          project_type?: string
+          requester_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_booking_requests_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "model_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      model_profiles: {
+        Row: {
+          available: boolean
+          avatar_url: string
+          bio: string
+          cover_image: string
+          created_at: string
+          display_name: string
+          experience_tags: string[]
+          height_cm: number | null
+          id: string
+          location: string
+          portfolio_urls: string[]
+          slug: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          available?: boolean
+          avatar_url?: string
+          bio?: string
+          cover_image?: string
+          created_at?: string
+          display_name: string
+          experience_tags?: string[]
+          height_cm?: number | null
+          id?: string
+          location?: string
+          portfolio_urls?: string[]
+          slug: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          available?: boolean
+          avatar_url?: string
+          bio?: string
+          cover_image?: string
+          created_at?: string
+          display_name?: string
+          experience_tags?: string[]
+          height_cm?: number | null
+          id?: string
+          location?: string
+          portfolio_urls?: string[]
+          slug?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -152,6 +511,92 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      service_bookings: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          preferred_date: string | null
+          requester_id: string | null
+          service_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          preferred_date?: string | null
+          requester_id?: string | null
+          service_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          preferred_date?: string | null
+          requester_id?: string | null
+          service_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          available: boolean
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          image_url: string
+          provider: string
+          rate_display: string
+          slug: string
+          title: string
+        }
+        Insert: {
+          available?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          image_url?: string
+          provider: string
+          rate_display?: string
+          slug: string
+          title: string
+        }
+        Update: {
+          available?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          image_url?: string
+          provider?: string
+          rate_display?: string
+          slug?: string
+          title?: string
         }
         Relationships: []
       }
@@ -313,6 +758,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],

@@ -12,6 +12,7 @@ import useSEO from "@/hooks/useSEO";
 import ShareButtons from "@/components/ShareButtons";
 import RelatedArticles from "@/components/RelatedArticles";
 import ArticleComments from "@/components/ArticleComments";
+import { ReadingProgress } from "@/components/ReadingProgress";
 
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -191,6 +192,7 @@ const ArticlePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgress />
       <Navbar />
 
       {/* Hero */}
@@ -266,10 +268,10 @@ const ArticlePage = () => {
         </div>
 
         {/* Body */}
-        <div className="prose-article space-y-6">
+        <div className="space-y-7 font-sans text-[17px] leading-[1.85] tracking-[0.01em] text-foreground/85">
           {paragraphs.map((p, i) => (
-            <p key={i} className="font-sans text-base leading-relaxed text-foreground/90">
-              {i === 0 && <span className="text-editorial-heading text-5xl float-left mr-3 mt-1 leading-none text-primary">{p.charAt(0)}</span>}
+            <p key={i} className="font-sans text-[17px] leading-[1.85] tracking-[0.01em] text-foreground/85">
+              {i === 0 && <span className="font-serif text-[6rem] float-left mr-2 mt-[-0.15em] leading-[0.85] text-primary font-bold">{p.charAt(0)}</span>}
               {i === 0 ? p.slice(1) : p}
             </p>
           ))}

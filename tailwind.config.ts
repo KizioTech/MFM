@@ -57,6 +57,9 @@ export default {
         slate: "hsl(var(--slate))",
         terracotta: "hsl(var(--terracotta))",
         "warm-gray": "hsl(var(--warm-gray))",
+        sand: "hsl(var(--sand))",
+        ink: "hsl(var(--ink))",
+        "gold-foil": "hsl(var(--gold-foil))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

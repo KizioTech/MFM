@@ -25,19 +25,16 @@ const DesignerDetailPage = () => {
   useEffect(() => {
     if (!slug) return;
     const run = async () => {
-      const [{ data: d }, { data: a }] = await Promise.all([
-        supabase.from("designers").select("*").eq("slug", slug).maybeSingle(),
-        supabase
-          .from("articles")
-          .select("*")
-          .eq("published", true)
-          .eq("designer_id", /* resolved below */ "placeholder") // replaced after designer fetch
-          .order("created_at", { ascending: false })
-          .limit(6),
-      ]);
-      // Re-fetch articles properly after getting designer id
+      // 1. Fetch designer first
+      const { data: d } = await supabase
+        .from("designers")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+
       if (d) {
         setDesigner(d as Designer);
+        // 2. Only then fetch articles linked to this designer
         const { data: linked } = await supabase
           .from("articles")
           .select("*")

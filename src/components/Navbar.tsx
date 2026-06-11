@@ -11,6 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import SearchModal from "@/components/SearchModal";
 
 const archiveLinks = [
@@ -56,11 +57,16 @@ const Navbar = () => {
   const [mobileDiscoverOpen, setMobileDiscoverOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const discoverRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdminRole();
+
+  const isHome = location.pathname === "/";
+  const isTransparent = isHome && !scrolled;
 
   const isArchivesActive = location.pathname.startsWith("/archives");
 
@@ -94,24 +100,38 @@ const Navbar = () => {
     setMobileArchivesOpen(false);
     setMobileDiscoverOpen(false);
     setUserMenuOpen(false);
+    // Reset scroll state when navigating
+    setScrolled(window.scrollY > window.innerHeight * 0.6);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.5);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <nav className={`${
+        isHome ? "fixed" : "sticky"
+      } top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+        isTransparent
+          ? "bg-transparent border-transparent border-b"
+          : "bg-background/95 backdrop-blur-sm border-b border-border"
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src="/logo.png"
                 alt="Mountain Fashion Magazine"
-                className="h-9 md:h-12 w-auto object-contain"
+                className={`h-9 md:h-12 w-auto object-contain transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
               />
               <div className="flex flex-col items-start">
-                <span className="text-editorial-heading text-lg md:text-xl font-bold text-foreground tracking-wide leading-none">
+                <span className={`text-editorial-heading text-lg md:text-xl font-bold tracking-wide leading-none transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-foreground'}`}>
                   MOUNTAIN
                 </span>
-                <span className="text-[9px] md:text-[10px] lg:text-xs tracking-[0.15em] md:tracking-[0.3em] text-muted-foreground font-sans uppercase mt-1">
+                <span className={`text-[9px] md:text-[10px] lg:text-xs tracking-[0.15em] md:tracking-[0.3em] font-sans uppercase mt-1 transition-colors duration-300 ${isTransparent ? 'text-white/60' : 'text-muted-foreground'}`}>
                   Fashion Magazine
                 </span>
               </div>
@@ -123,8 +143,8 @@ const Navbar = () => {
                 to="/"
                 className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
                   location.pathname === "/"
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                    ? isTransparent ? "text-white" : "text-primary"
+                    : isTransparent ? "text-white/80" : "text-muted-foreground"
                 }`}
               >
                 Home
@@ -135,7 +155,9 @@ const Navbar = () => {
                 <button
                   onClick={() => setArchivesOpen(!archivesOpen)}
                   className={`flex items-center gap-1 text-sm font-medium tracking-wide transition-colors hover:text-primary ${
-                    isArchivesActive ? "text-primary" : "text-muted-foreground"
+                    isArchivesActive
+                      ? "text-primary"
+                      : isTransparent ? "text-white/80" : "text-muted-foreground"
                   }`}
                 >
                   Archives
@@ -181,7 +203,7 @@ const Navbar = () => {
                       "/community",
                     ].some((p) => location.pathname.startsWith(p))
                       ? "text-primary"
-                      : "text-muted-foreground"
+                      : isTransparent ? "text-white/80" : "text-muted-foreground"
                   }`}
                 >
                   Discover
@@ -219,7 +241,7 @@ const Navbar = () => {
                 className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
                   location.pathname === "/about"
                     ? "text-primary"
-                    : "text-muted-foreground"
+                    : isTransparent ? "text-white/80" : "text-muted-foreground"
                 }`}
               >
                 About
@@ -227,7 +249,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => setSearchOpen(true)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className={`transition-colors hover:text-primary ${isTransparent ? 'text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -260,13 +282,15 @@ const Navbar = () => {
                         <Bookmark className="w-4 h-4" />
                         Mood Board
                       </Link>
-                      <Link
-                        to="/admin"
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-sans text-foreground hover:bg-accent transition-colors"
-                      >
-                        <Shield className="w-4 h-4" />
-                        Admin
-                      </Link>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm font-sans text-foreground hover:bg-accent transition-colors"
+                        >
+                          <Shield className="w-4 h-4" />
+                          Admin
+                        </Link>
+                      )}
                       <button
                         onClick={signOut}
                         className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-sans text-foreground hover:bg-accent transition-colors"
@@ -280,7 +304,11 @@ const Navbar = () => {
               ) : (
                 <Link
                   to="/auth"
-                  className="px-4 py-2 bg-primary text-primary-foreground font-sans text-sm font-medium rounded-sm hover:bg-primary/90 transition-colors"
+                  className={`px-4 py-2 font-sans text-sm font-medium rounded-sm transition-colors ${
+                    isTransparent
+                      ? 'border border-white/40 text-white hover:bg-white/10'
+                      : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  }`}
                 >
                   Sign In
                 </Link>

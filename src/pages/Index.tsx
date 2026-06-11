@@ -1,41 +1,35 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import { HeroSection } from "@/components/blocks/hero-section-5";
+import { CoverHero } from "@/components/blocks/CoverHero";
+import { EditorialGrid } from "@/components/blocks/EditorialGrid";
+import { AltitudeNavigator } from "@/components/blocks/AltitudeNavigator";
+import { FeatureSpread } from "@/components/blocks/FeatureSpread";
 import Footer from "@/components/Footer";
-import {
-  altitudeLabels,
-  altitudeDescriptions,
-  type AltitudeCategory,
-  type Article,
-} from "@/data/articles";
-import {
-  ArrowRight,
-  Sparkles,
-  Users,
-  Briefcase,
-  CalendarDays,
-  MessageSquare,
-} from "lucide-react";
+import type { Article, AltitudeCategory } from "@/data/articles";
 import { supabase } from "@/integrations/supabase/client";
 import useSEO from "@/hooks/useSEO";
 
-const categories: AltitudeCategory[] = [
-  "peak",
-  "plateau",
-  "foothills",
-  "heritage",
-];
+import peak1 from "@/assets/article-peak-1.jpg";
+import plateau1 from "@/assets/article-plateau-1.jpg";
+import foothills1 from "@/assets/article-foothills-1.jpg";
+import heritage1 from "@/assets/article-heritage-1.jpg";
+
+const previewImages = {
+  peak: peak1,
+  plateau: plateau1,
+  foothills: foothills1,
+  heritage: heritage1,
+};
 
 const Index = () => {
   const [trending, setTrending] = useState<Article[]>([]);
+  const [latestSlug, setLatestSlug] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useSEO({
     title: "Mountain Fashion Magazine — Malawian Heritage Meets Modern Fashion",
-    description:
-      "A social editorial platform celebrating Malawian fashion culture.",
+    description: "A social editorial platform celebrating Malawian fashion culture.",
   });
 
   useEffect(() => {
@@ -45,9 +39,12 @@ const Index = () => {
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: false })
-        .limit(11); // Fetch 11 to use 5 for hero and 6 for trending
+        .limit(11);
 
       if (data && data.length > 0) {
+        // The most recent article's slug goes to the hero CTA
+        setLatestSlug(data[0].slug);
+
         const formattedArticles: Article[] = data.map((a) => ({
           id: a.id,
           title: a.title,
@@ -75,144 +72,62 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <HeroSection trending={trending} isLoading={isLoading} />
+      {/* Full-bleed cover — Navbar overlays this via fixed positioning when transparent */}
+      <CoverHero latestSlug={latestSlug} />
 
-      {/* Altitude Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-editorial-heading text-2xl md:text-3xl text-foreground mb-2">
-            Choose Your Altitude
-          </h2>
-          <p className="font-sans text-sm text-muted-foreground">
-            Every journey up the mountain begins with a single step
-          </p>
+      {/* Editorial Grid — breathing room with sand background accent */}
+      {!isLoading && trending.length > 0 && (
+        <div className="bg-background">
+          <EditorialGrid articles={trending} />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {categories.map((cat) => (
-            <Link
-              key={cat}
-              to={`/archives/${cat}`}
-              className="group p-6 border border-border rounded-sm hover:border-primary hover:bg-primary/5 transition-all text-center"
-            >
-              <h3 className="text-editorial-heading text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
-                {altitudeLabels[cat]}
-              </h3>
-              <p className="font-sans text-xs text-muted-foreground line-clamp-2">
-                {altitudeDescriptions[cat].split("—")[0]}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+      )}
 
-      <div className="altitude-divider max-w-7xl mx-auto" />
+      {/* Ochre fold divider */}
+      <div className="altitude-divider mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12" />
 
-      {/* Discover Platform Features */}
-      <section className="bg-muted py-20 px-4 sm:px-6 lg:px-8 border-y border-border">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary font-sans text-xs font-semibold tracking-widest uppercase rounded-full mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              More Than A Magazine
-            </span>
-            <h2 className="text-editorial-heading text-3xl md:text-5xl text-foreground mb-4">
-              Discover The Ecosystem
-            </h2>
-            <p className="font-sans text-sm text-muted-foreground max-w-xl mx-auto">
-              Connecting Malawian fashion creatives, professionals, and
-              enthusiasts across the country.
-            </p>
-          </div>
+      {/* Altitude Navigator */}
+      <AltitudeNavigator previewImages={previewImages} />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link
-              to="/designers"
-              className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
-            >
-              <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
-                <Users className="w-64 h-64" />
-              </div>
-              <div>
-                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">
-                  Designer & Model Directory
-                </h3>
-                <p className="font-sans text-sm text-muted-foreground max-w-md leading-relaxed">
-                  Browse profiles of Malawian designers, ateliers, and modelling
-                  talent available for bookings and collaborations. Find the
-                  perfect fit for your next project.
-                </p>
-              </div>
-              <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Explore Directory{" "}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+      {/* Platform Feature Grid */}
+      <section>
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <FeatureSpread
+            image={peak1}
+            label="Discover"
+            title="Designers & Models"
+            body="Browse Malawian ateliers, independent designers, and modelling talent available for bookings."
+            href="/directory"
+            cta="Explore Directory"
+          />
 
-            <Link
-              to="/consultancy"
-              className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
-                <Briefcase className="w-40 h-40" />
-              </div>
-              <div>
-                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">
-                  Consultancy
-                </h3>
-                <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-                  Book stylists, photographers, and consultants seamlessly.
-                </p>
-              </div>
-              <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Find Talent{" "}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+          <FeatureSpread
+            image={plateau1}
+            label="Book"
+            title="Consultancy"
+            body="Stylists, photographers, and fashion consultants ready for your next project."
+            href="/consultancy"
+            cta="Find Talent"
+            dark
+          />
 
-            <Link
-              to="/events"
-              className="group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
-                <CalendarDays className="w-40 h-40" />
-              </div>
-              <div>
-                <h3 className="text-editorial-heading text-xl text-foreground group-hover:text-primary transition-colors mb-2">
-                  Events
-                </h3>
-                <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-                  Trunk shows, pop-ups, and runways across Malawi.
-                </p>
-              </div>
-              <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                View Calendar{" "}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+          <FeatureSpread
+            image={foothills1}
+            label="Attend"
+            title="Events"
+            body="Runway shows, trunk sales, and pop-up markets across Malawi."
+            href="/events"
+            cta="View Calendar"
+            dark
+          />
 
-            <Link
-              to="/community"
-              className="md:col-span-2 group relative overflow-hidden rounded-md bg-card border border-border p-8 hover:border-primary/50 hover:shadow-sm transition-all flex flex-col justify-between min-h-[240px]"
-            >
-              <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all duration-500 pointer-events-none">
-                <MessageSquare className="w-64 h-64" />
-              </div>
-              <div>
-                <h3 className="text-editorial-heading text-2xl text-foreground group-hover:text-primary transition-colors mb-2">
-                  Community Lookbook
-                </h3>
-                <p className="font-sans text-sm text-muted-foreground max-w-md leading-relaxed">
-                  Real looks from the Malawian fashion community. Submit your
-                  daily styles, get inspired by others, and celebrate our shared
-                  heritage.
-                </p>
-              </div>
-              <div className="mt-8 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide text-primary">
-                Join the Community{" "}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          </div>
+          <FeatureSpread
+            image={heritage1}
+            label="Join"
+            title="Community Lookbook"
+            body="Real looks from the Malawian fashion community. Submit yours."
+            href="/community"
+            cta="Join the Community"
+          />
         </div>
       </section>
 
