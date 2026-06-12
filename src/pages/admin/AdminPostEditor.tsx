@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Save } from "lucide-react";
+import MarkdownEditor from "@/components/MarkdownEditor";
 
 const categories = [
   { value: "peak", label: "The Peak" },
@@ -128,7 +129,7 @@ const AdminPostEditor = () => {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-3xl">
+    <div className="p-6 md:p-8 max-w-5xl">
       <button
         onClick={() => navigate("/admin/posts")}
         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground font-sans mb-6 transition-colors"
@@ -175,14 +176,12 @@ const AdminPostEditor = () => {
         </div>
 
         <div>
-          <Label htmlFor="body" className="font-sans text-sm">Body</Label>
-          <textarea
-            id="body"
+          <Label className="font-sans text-sm mb-2 block">Body</Label>
+          <MarkdownEditor
             value={form.body}
-            onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
-            placeholder="Full article content..."
-            rows={12}
-            className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm font-sans focus:outline-none focus:ring-2 focus:ring-ring"
+            onChange={(body) => setForm((f) => ({ ...f, body }))}
+            placeholder="Write your article in Markdown…"
+            minHeight={480}
           />
         </div>
 
@@ -221,8 +220,9 @@ const AdminPostEditor = () => {
 
                   setForm((f) => ({ ...f, cover_image: data.publicUrl }));
                   toast.success("Image uploaded successfully", { id: toastId });
-                } catch (error: any) {
-                  toast.error(`Upload failed: ${error.message}`, { id: toastId });
+                } catch (error: unknown) {
+                  const msg = error instanceof Error ? error.message : "Unknown error";
+                  toast.error(`Upload failed: ${msg}`, { id: toastId });
                 }
               }}
             />
